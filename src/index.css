@@ -1,0 +1,194 @@
+ @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+ @tailwind components;
+ @tailwind utilities;
+ 
+ /* Bond Database Enterprise Design System
+    Professional financial application with sustainability focus
+    All colors in HSL format
+ */
+ 
+ 
+ @layer base {
+   :root {
+     /* Core surfaces */
+     --background: 220 20% 97%;
+     --foreground: 222 47% 11%;
+     
+     /* Cards with subtle elevation */
+     --card: 0 0% 100%;
+     --card-foreground: 222 47% 11%;
+     
+     /* Popovers and dropdowns */
+     --popover: 0 0% 100%;
+     --popover-foreground: 222 47% 11%;
+     
+     /* Primary: Deep slate blue - professional, trustworthy */
+     --primary: 222 47% 20%;
+     --primary-foreground: 210 40% 98%;
+     
+     /* Secondary: Soft blue-gray */
+     --secondary: 214 32% 91%;
+     --secondary-foreground: 222 47% 20%;
+     
+     /* Muted: Subtle backgrounds */
+     --muted: 220 14% 96%;
+     --muted-foreground: 215 16% 47%;
+     
+     /* Accent: Emerald green for sustainability */
+     --accent: 160 84% 39%;
+     --accent-foreground: 0 0% 100%;
+     
+     /* Destructive: Clear red for risk */
+     --destructive: 0 72% 51%;
+     --destructive-foreground: 0 0% 100%;
+     
+     /* Borders and inputs */
+     --border: 214 32% 91%;
+     --input: 214 32% 91%;
+     --ring: 222 47% 20%;
+     
+     --radius: 0.5rem;
+     
+     /* Financial data colors */
+     --positive: 160 84% 39%;
+     --negative: 0 72% 51%;
+     --warning: 38 92% 50%;
+     --info: 217 91% 60%;
+     
+     /* ESG Colors */
+     --esg-e: 160 84% 39%;
+     --esg-s: 217 91% 60%;
+     --esg-g: 280 68% 60%;
+     
+     /* Chart palette */
+     --chart-1: 222 47% 20%;
+     --chart-2: 160 84% 39%;
+     --chart-3: 217 91% 60%;
+     --chart-4: 280 68% 60%;
+     --chart-5: 38 92% 50%;
+     
+     /* Sidebar */
+     --sidebar-background: 222 47% 11%;
+     --sidebar-foreground: 210 40% 98%;
+     --sidebar-primary: 160 84% 39%;
+     --sidebar-primary-foreground: 0 0% 100%;
+     --sidebar-accent: 222 47% 16%;
+     --sidebar-accent-foreground: 210 40% 98%;
+     --sidebar-border: 222 47% 16%;
+     --sidebar-ring: 160 84% 39%;
+     --sidebar-muted: 215 16% 60%;
+   }
+ 
+   .dark {
+     --background: 222 47% 7%;
+     --foreground: 210 40% 98%;
+     
+     --card: 222 47% 10%;
+     --card-foreground: 210 40% 98%;
+     
+     --popover: 222 47% 10%;
+     --popover-foreground: 210 40% 98%;
+     
+     --primary: 210 40% 98%;
+     --primary-foreground: 222 47% 11%;
+     
+     --secondary: 222 47% 16%;
+     --secondary-foreground: 210 40% 98%;
+     
+     --muted: 222 47% 14%;
+     --muted-foreground: 215 20% 65%;
+     
+     --accent: 160 84% 45%;
+     --accent-foreground: 222 47% 11%;
+     
+     --destructive: 0 62% 50%;
+     --destructive-foreground: 210 40% 98%;
+     
+     --border: 222 47% 16%;
+     --input: 222 47% 16%;
+     --ring: 210 40% 98%;
+     
+     --positive: 160 84% 45%;
+     --negative: 0 62% 50%;
+     --warning: 38 92% 55%;
+     --info: 217 91% 65%;
+     
+     --sidebar-background: 222 47% 5%;
+     --sidebar-foreground: 210 40% 98%;
+     --sidebar-primary: 160 84% 45%;
+     --sidebar-primary-foreground: 222 47% 11%;
+     --sidebar-accent: 222 47% 10%;
+     --sidebar-accent-foreground: 210 40% 98%;
+     --sidebar-border: 222 47% 12%;
+   }
+ }
+ 
+ @layer base {
+   * {
+     @apply border-border;
+   }
+   
+   html {
+     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+   }
+   
+   body {
+     @apply bg-background text-foreground antialiased;
+     font-family: 'Inter', system-ui, sans-serif;
+   }
+   
+   /* Tabular numbers for financial data */
+   .tabular-nums {
+     font-variant-numeric: tabular-nums;
+   }
+ }
+ 
+ @layer components {
+   /* Data table row hover */
+   .data-row {
+     @apply transition-colors duration-150 hover:bg-muted/50;
+   }
+   
+   /* Financial value styling */
+   .value-positive {
+     @apply text-positive;
+   }
+   
+   .value-negative {
+     @apply text-negative;
+   }
+   
+   /* ESG badge base */
+   .esg-badge {
+     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+   }
+   
+   /* Glass effect for overlays */
+   .glass {
+     @apply backdrop-blur-md bg-card/80;
+   }
+   
+   /* Subtle card elevation */
+   .card-elevated {
+     @apply bg-card shadow-sm border border-border/50;
+   }
+ }
+ 
+ @layer utilities {
+   /* Hide scrollbar but keep functionality */
+   .scrollbar-hide {
+     -ms-overflow-style: none;
+     scrollbar-width: none;
+   }
+   
+   .scrollbar-hide::-webkit-scrollbar {
+     display: none;
+   }
+   
+   /* Subtle text gradient */
+   .text-gradient {
+     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+   }
+ }
