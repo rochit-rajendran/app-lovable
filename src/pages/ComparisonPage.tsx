@@ -4,7 +4,9 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useComparisonContext } from '@/contexts/ComparisonContext';
 import { usePortfolioContext } from '@/contexts/PortfolioContext';
 import { ComparisonHeader } from '@/components/comparison/ComparisonHeader';
+import { BondQuickView } from '@/components/comparison/BondQuickView';
 import { UoPComparisonMatrix } from '@/components/comparison/UoPComparisonMatrix';
+import { FrameworkCriteriaComparison } from '@/components/comparison/FrameworkCriteriaComparison';
 import { SDGComparisonTable } from '@/components/comparison/SDGComparisonTable';
 import { ImpactKPIComparison } from '@/components/comparison/ImpactKPIComparison';
 import { CoverageComparison } from '@/components/comparison/CoverageComparison';
@@ -49,8 +51,8 @@ export default function ComparisonPage() {
       setItemIds(idsParam.split(','));
       setComparisonName(
         typeParam === 'bond' ? 'Bond Comparison' :
-        typeParam === 'portfolio' ? 'Portfolio Comparison' :
-        'Issuer Comparison'
+          typeParam === 'portfolio' ? 'Portfolio Comparison' :
+            'Issuer Comparison'
       );
     }
   }, [savedId, typeParam, idsParam, comparisons]);
@@ -111,7 +113,14 @@ export default function ComparisonPage() {
         {/* Scrollable comparison content */}
         <div className="flex-1 overflow-auto">
           <div className="max-w-[1400px] mx-auto p-6 space-y-6">
-            {/* 1. Use of Proceeds */}
+            {/* 1. Comparison data */}
+            <section>
+              <div className="mt-3">
+                <BondQuickView subjects={subjects} />
+              </div>
+            </section>
+
+            {/* 2. Use of Proceeds */}
             <section>
               <SectionLabel>Use of Proceeds Allocation</SectionLabel>
               <div className="mt-3">
@@ -119,7 +128,14 @@ export default function ComparisonPage() {
               </div>
             </section>
 
-            {/* 2. SDG Allocation */}
+            {/* 3. Framework Criteria */}
+            <section>
+              <div className="mt-3">
+                <FrameworkCriteriaComparison subjects={subjects} />
+              </div>
+            </section>
+
+            {/* 4. SDG Allocation */}
             <section>
               <SectionLabel>SDG Allocation</SectionLabel>
               <div className="mt-3">
@@ -127,7 +143,7 @@ export default function ComparisonPage() {
               </div>
             </section>
 
-            {/* 3. Impact KPIs */}
+            {/* 5. Impact KPIs */}
             <section>
               <SectionLabel>Impact Benchmarking</SectionLabel>
               <div className="mt-3">
@@ -135,7 +151,7 @@ export default function ComparisonPage() {
               </div>
             </section>
 
-            {/* 4. Coverage & Data Quality */}
+            {/* 6. Coverage & Data Quality */}
             <section>
               <SectionLabel>Data Quality & Coverage</SectionLabel>
               <div className="mt-3">
@@ -143,7 +159,7 @@ export default function ComparisonPage() {
               </div>
             </section>
 
-            {/* 5. Summary */}
+            {/* 7. Summary */}
             <section>
               <SectionLabel>Summary</SectionLabel>
               <div className="mt-3">

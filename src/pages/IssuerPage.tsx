@@ -11,7 +11,8 @@ import { mockBonds } from '@/data/mockBonds';
 import { mockEsgDetails } from '@/data/mockEsgData';
 import { getFrameworksForIssuer } from '@/data/mockFrameworks';
 import { ArrowLeft, Building2, Globe, Briefcase, FileText, ChevronRight, Leaf, Download, ExternalLink, GitCompare } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { Info } from 'lucide-react';
 import { ExportDialog } from '@/components/export/ExportDialog';
 import { ExportConfig } from '@/types/export';
 import { exportIssuerCSV } from '@/lib/csvExport';
@@ -24,6 +25,27 @@ const UOP_COLORS = [
   'hsl(340, 75%, 55%)',
   'hsl(180, 60%, 45%)',
 ];
+
+const SDG_COLORS: Record<number, string> = {
+  7: '#FCC30B',
+  9: '#F36D25',
+  11: '#F99D26',
+  12: '#BF8B2E',
+  13: '#3F7E44',
+  14: '#0A97D9',
+  15: '#56C02B',
+};
+
+function SDGIcon({ number }: { number: number }) {
+  return (
+    <div
+      className="w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+      style={{ backgroundColor: SDG_COLORS[number] || '#999' }}
+    >
+      {number}
+    </div>
+  );
+}
 
 function formatLargeNumber(value: number, currency: string): string {
   if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T ${currency}`;
@@ -66,29 +88,37 @@ export default function IssuerPage() {
 
   // Aggregate use of proceeds across all bonds
   const aggregateUoP: Record<string, number> = {};
-  const aggregateSDG: Record<string, { name: string; amount: number }> = {};
+  const aggregateSDG: Record<string, { name: string; amount: number; sdgNumber: number }> = {};
+  let totalUoPAllocated = 0;
 
   issuerBonds.forEach(bond => {
     const esg = mockEsgDetails[bond.id];
     if (esg) {
       esg.useOfProceeds.forEach(uop => {
         aggregateUoP[uop.category] = (aggregateUoP[uop.category] || 0) + uop.allocatedAmount;
+        totalUoPAllocated += uop.allocatedAmount;
       });
       esg.sdgAllocations.forEach(sdg => {
         const key = `SDG ${sdg.sdgNumber}`;
         if (!aggregateSDG[key]) {
-          aggregateSDG[key] = { name: sdg.sdgName, amount: 0 };
+          aggregateSDG[key] = { name: sdg.sdgName, amount: 0, sdgNumber: sdg.sdgNumber };
         }
         aggregateSDG[key].amount += sdg.allocationAmount;
       });
     }
   });
 
-  const uopChartData = Object.entries(aggregateUoP).map(([name, value]) => ({ name, value }));
+  const uopChartData = Object.entries(aggregateUoP).map(([name, amount]) => ({
+    name,
+    amount,
+    value: Number((totalUoPAllocated > 0 ? (amount / totalUoPAllocated) * 100 : 0).toFixed(1))
+  }));
   const sdgChartData = Object.entries(aggregateSDG).map(([key, data]) => ({
     name: key,
     fullName: data.name,
-    value: data.amount,
+    value: data.amount, // PieChart uses this for angle
+    amount: data.amount,
+    sdgNumber: data.sdgNumber,
   }));
 
   const hasEsgData = uopChartData.length > 0;
@@ -153,11 +183,11 @@ export default function IssuerPage() {
             {/* Summary stats */}
             <div className="flex items-center gap-4 flex-shrink-0">
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Sustainable Bonds</p>
+                <p className="text-xs text-muted-foreground">Number of Sustainable Bonds</p>
                 <p className="text-2xl font-bold tabular-nums text-foreground">{issuer.sustainableBondCount}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Total Sustainable Issuance</p>
+                <p className="text-xs text-muted-foreground">Number of Sustainable Bond Issuance</p>
                 <p className="text-2xl font-bold tabular-nums text-accent">
                   {formatLargeNumber(issuer.totalSustainableIssuance, issuer.currency)}
                 </p>
@@ -210,8 +240,8 @@ export default function IssuerPage() {
                     {issuerBonds.map(bond => (
                       <TableRow key={bond.id} className="data-row">
                         <TableCell>
-                          <Link 
-                            to={`/bonds/${bond.id}`} 
+                          <Link
+                            to={`/bonds/${bond.id}`}
                             className="text-sm font-medium text-primary hover:underline underline-offset-2"
                           >
                             {bond.name}
@@ -246,12 +276,12 @@ export default function IssuerPage() {
             </Card>
           </section>
 
-          {/* Sustainability Summary */}
+          {/* Allocation Summary */}
           {hasEsgData && (
             <section>
               <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Leaf className="h-5 w-5 text-accent" />
-                Sustainability Summary
+                Allocation Summary
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Aggregate UoP */}
@@ -260,41 +290,29 @@ export default function IssuerPage() {
                     <CardTitle className="text-base font-semibold">Allocation by Use of Proceeds</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex items-start gap-6">
-                      <div className="w-36 h-36 flex-shrink-0">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={uopChartData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={32}
-                              outerRadius={64}
-                              paddingAngle={2}
-                              dataKey="value"
-                            >
-                              {uopChartData.map((_, index) => (
-                                <Cell key={index} fill={UOP_COLORS[index % UOP_COLORS.length]} />
-                              ))}
-                            </Pie>
-                            <Tooltip 
-                              formatter={(value: number) => [formatLargeNumber(value, issuer.currency), 'Allocation']}
-                              contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="flex-1 space-y-2">
-                        {uopChartData.map((item, idx) => (
-                          <div key={item.name} className="flex items-center gap-2.5">
-                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: UOP_COLORS[idx % UOP_COLORS.length] }} />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
-                              <p className="text-xs text-muted-foreground tabular-nums">{formatLargeNumber(item.value, issuer.currency)}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="h-44">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={uopChartData} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
+                          <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                          <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                          <Tooltip
+                            formatter={(value: number, name: string, props: any) => [
+                              `${value}% · ${formatLargeNumber(props.payload.amount, issuer.currency)}`,
+                              'Allocation'
+                            ]}
+                            contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                          />
+                          <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={24}>
+                            {uopChartData.map((_, index) => (
+                              <Cell
+                                key={index}
+                                fill={UOP_COLORS[index % UOP_COLORS.length]}
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
                     </div>
                   </CardContent>
                 </Card>
@@ -306,25 +324,102 @@ export default function IssuerPage() {
                       <CardTitle className="text-base font-semibold">Allocation by SDG</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-2.5">
-                        {sdgChartData.map((sdg) => (
-                          <div key={sdg.name} className="flex items-center justify-between gap-3 py-1.5 border-b border-border/30 last:border-0">
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium text-foreground">{sdg.name}</p>
-                              <p className="text-xs text-muted-foreground">{sdg.fullName}</p>
+                      <div className="flex items-start gap-6">
+                        <div className="w-40 h-40 flex-shrink-0">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={sdgChartData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={36}
+                                outerRadius={70}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                {sdgChartData.map((entry) => (
+                                  <Cell key={entry.sdgNumber} fill={SDG_COLORS[entry.sdgNumber] || '#999'} />
+                                ))}
+                              </Pie>
+                              <Tooltip
+                                formatter={(value: number) => [
+                                  `${Number(((value / totalUoPAllocated) * 100).toFixed(1))}%`,
+                                  'Allocation'
+                                ]}
+                                contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                              />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                        <div className="flex-1 space-y-2.5">
+                          {sdgChartData.map((sdg) => (
+                            <div key={sdg.name} className="flex items-center gap-2.5">
+                              <SDGIcon number={sdg.sdgNumber} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-foreground truncate">{sdg.fullName}</p>
+                                <p className="text-xs text-muted-foreground tabular-nums">
+                                  {Number(((sdg.amount / totalUoPAllocated) * 100).toFixed(1))}% · {formatLargeNumber(sdg.amount, issuer.currency)}
+                                </p>
+                              </div>
                             </div>
-                            <span className="text-sm font-semibold tabular-nums text-foreground flex-shrink-0">
-                              {formatLargeNumber(sdg.value, issuer.currency)}
-                            </span>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
+                      <p className="text-[11px] text-muted-foreground mt-4 flex items-center gap-1">
+                        <Info className="h-3 w-3" />
+                        Based on issuer-reported allocation
+                      </p>
                     </CardContent>
                   </Card>
                 )}
               </div>
             </section>
           )}
+
+          {/* Frameworks */}
+          {issuer.frameworks.length > 0 && (() => {
+            const detailedFrameworks = getFrameworksForIssuer(decodedName);
+            return (
+              <section>
+                <h2 className="text-lg font-semibold text-foreground mb-4">Frameworks</h2>
+                <Card>
+                  <CardContent className="py-4">
+                    <div className="space-y-3">
+                      {issuer.frameworks.map((fw, idx) => {
+                        const detailedFw = detailedFrameworks.find(
+                          d => d.name === fw.name || (d.name.includes(fw.name.split(' ')[0]) && d.year === (fw.date ? new Date(fw.date).getFullYear() : undefined))
+                        );
+                        return (
+                          <div key={idx} className="flex items-center justify-between gap-4 py-2 border-b border-border/30 last:border-0">
+                            <div>
+                              {detailedFw ? (
+                                <Link to={`/frameworks/${detailedFw.id}`} className="text-sm font-medium text-primary hover:underline underline-offset-2 inline-flex items-center gap-1">
+                                  {fw.name}
+                                  <ExternalLink className="h-3 w-3" />
+                                </Link>
+                              ) : (
+                                <p className="text-sm font-medium text-foreground">{fw.name}</p>
+                              )}
+                              <p className="text-xs text-muted-foreground">
+                                {fw.version && `Version ${fw.version}`}
+                                {fw.date && ` · ${new Date(fw.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`}
+                              </p>
+                            </div>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${fw.status === 'Active' ? 'bg-accent/10 text-accent' :
+                                fw.status === 'Draft' ? 'bg-info/10 text-info' :
+                                  'bg-muted text-muted-foreground'
+                              }`}>
+                              {fw.status}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+            );
+          })()}
 
           {/* Documents */}
           {allDocuments.length > 0 && (
@@ -371,52 +466,6 @@ export default function IssuerPage() {
               </Card>
             </section>
           )}
-
-          {/* Frameworks */}
-          {issuer.frameworks.length > 0 && (() => {
-            const detailedFrameworks = getFrameworksForIssuer(decodedName);
-            return (
-              <section>
-                <h2 className="text-lg font-semibold text-foreground mb-4">Frameworks</h2>
-                <Card>
-                  <CardContent className="py-4">
-                    <div className="space-y-3">
-                      {issuer.frameworks.map((fw, idx) => {
-                        const detailedFw = detailedFrameworks.find(
-                          d => d.name === fw.name || (d.name.includes(fw.name.split(' ')[0]) && d.year === (fw.date ? new Date(fw.date).getFullYear() : undefined))
-                        );
-                        return (
-                          <div key={idx} className="flex items-center justify-between gap-4 py-2 border-b border-border/30 last:border-0">
-                            <div>
-                              {detailedFw ? (
-                                <Link to={`/frameworks/${detailedFw.id}`} className="text-sm font-medium text-primary hover:underline underline-offset-2 inline-flex items-center gap-1">
-                                  {fw.name}
-                                  <ExternalLink className="h-3 w-3" />
-                                </Link>
-                              ) : (
-                                <p className="text-sm font-medium text-foreground">{fw.name}</p>
-                              )}
-                              <p className="text-xs text-muted-foreground">
-                                {fw.version && `Version ${fw.version}`}
-                                {fw.date && ` · ${new Date(fw.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`}
-                              </p>
-                            </div>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                              fw.status === 'Active' ? 'bg-accent/10 text-accent' :
-                              fw.status === 'Draft' ? 'bg-info/10 text-info' :
-                              'bg-muted text-muted-foreground'
-                            }`}>
-                              {fw.status}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              </section>
-            );
-          })()}
         </div>
       </div>
       <ExportDialog

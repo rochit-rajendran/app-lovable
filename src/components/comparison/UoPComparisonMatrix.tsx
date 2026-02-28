@@ -58,12 +58,12 @@ export function UoPComparisonMatrix({ subjects }: UoPComparisonMatrixProps) {
             <TableHeader>
               <TableRow className="bg-muted/30 hover:bg-muted/30">
                 <TableHead className="min-w-[200px] font-semibold sticky left-0 bg-muted/30 z-10">
-                  Category
+                  ICMA Use of Proceeds Category
                 </TableHead>
                 {subjects.map(s => (
                   <TableHead key={s.id} className="min-w-[140px] text-right">
                     <div>
-                      <p className="font-semibold text-foreground truncate max-w-[140px]">{s.label}</p>
+                      <p className="font-semibold text-foreground truncate max-w-[140px]">{s.isin || s.label}</p>
                     </div>
                   </TableHead>
                 ))}

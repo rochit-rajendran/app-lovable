@@ -14,6 +14,17 @@ export interface ComparisonSubject {
   id: string;
   label: string;        // display name
   subLabel?: string;     // e.g. issuer name for bonds, type for portfolios
+
+  // Bond Quick View specific fields
+  isin?: string;
+  issuer?: string;
+  sector?: string;
+  bondSizeEur?: number;
+  coupon?: number;
+  maturity?: string;
+  tenor?: number;
+  bondLabel?: string; // We'll map Bond.label to this so it doesn't conflict with Subject.label
+
   currency: string;
   bondCount: number;
   totalIssuance: number; // total sustainable issuance

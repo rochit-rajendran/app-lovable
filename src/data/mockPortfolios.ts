@@ -1,6 +1,6 @@
 import { Watchlist, Portfolio } from '@/types/portfolio';
 
-export const mockWatchlists: Watchlist[] = [
+export const mockWatchlists: Watchlist[] = [//feature
   {
     id: 'wl-1',
     name: 'Green Bond Candidates',

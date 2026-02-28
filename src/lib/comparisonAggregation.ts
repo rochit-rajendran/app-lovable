@@ -64,6 +64,16 @@ function bondToSubject(bond: Bond): ComparisonSubject {
     id: bond.id,
     label: bond.name,
     subLabel: bond.issuer,
+
+    isin: bond.isin,
+    issuer: bond.issuer,
+    sector: bond.sector,
+    bondSizeEur: bond.bondSizeEur,
+    coupon: bond.couponRate,
+    maturity: bond.maturityDate,
+    tenor: bond.tenor,
+    bondLabel: bond.label,
+
     currency: bond.currency,
     bondCount: 1,
     totalIssuance: bond.outstandingAmount,

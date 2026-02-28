@@ -41,8 +41,8 @@ export default function PortfolioDetailPage() {
     () =>
       portfolio
         ? portfolio.holdings
-            .map((h) => mockBonds.find((b) => b.id === h.bondId))
-            .filter(Boolean) as Bond[]
+          .map((h) => mockBonds.find((b) => b.id === h.bondId))
+          .filter(Boolean) as Bond[]
         : [],
     [portfolio]
   );

@@ -28,28 +28,22 @@ export function FrameworkOverview({ framework }: FrameworkOverviewProps) {
             <DefinitionRow label="Framework Year" value={framework.year} />
             <DefinitionRow label="Framework Type" value={framework.type} />
             <DefinitionRow label="Status" value={
-              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                framework.status === 'Active' ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'
-              }`}>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${framework.status === 'Active' ? 'bg-accent/10 text-accent' : 'bg-muted text-muted-foreground'
+                }`}>
                 {framework.status}
               </span>
             } />
           </dl>
           <dl>
-            {framework.currency && (
-              <DefinitionRow label="Currency Scope" value={framework.currency} />
-            )}
-            <DefinitionRow label="Bond Types Covered" value={framework.bondTypesCovered.join(', ')} />
             <DefinitionRow label="Alignment" value={
               <div className="space-y-1">
                 {framework.alignments.map((a, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <span>{a.standard}{a.version ? ` (${a.version})` : ''}</span>
-                    <span className={`inline-flex items-center px-1.5 py-0 rounded text-[10px] font-medium ${
-                      a.status === 'Aligned' ? 'bg-accent/10 text-accent' :
-                      a.status === 'Partially Aligned' ? 'bg-warning/10 text-warning' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
+                    <span className={`inline-flex items-center px-1.5 py-0 rounded text-[10px] font-medium ${a.status === 'Aligned' ? 'bg-accent/10 text-accent' :
+                        a.status === 'Partially Aligned' ? 'bg-warning/10 text-warning' :
+                          'bg-muted text-muted-foreground'
+                      }`}>
                       {a.status}
                     </span>
                   </div>

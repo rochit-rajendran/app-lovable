@@ -61,18 +61,12 @@ export function BondFacts({ bond, defaultOpen = false }: BondFactsProps) {
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Bond & Issuance</h4>
                 <div>
                   <FactRow label="ISIN" value={bond.isin} />
-                  <FactRow label="Bond Type" value={bond.issuerType} />
+                  <FactRow label="Bond Type" value={bond.label || 'Conventional'} />
                   <FactRow label="Issue Date" value={formatDate(bond.issueDate)} />
                   <FactRow label="Maturity Date" value={formatDate(bond.maturityDate)} />
                   <FactRow label="Coupon" value={`${bond.couponRate.toFixed(3)}%`} />
-                  <FactRow label="Issue Size" value={formatLargeNumber(bond.outstandingAmount, bond.currency)} />
+                  <FactRow label="Bond Size" value={formatLargeNumber(bond.outstandingAmount, bond.currency)} />
                   <FactRow label="Currency" value={bond.currency} />
-                  <FactRow label="Current Price" value={bond.currentPrice.toFixed(2)} />
-                  <FactRow label="YTM" value={`${bond.yieldToMaturity.toFixed(2)}%`} />
-                  <FactRow label="Duration" value={`${bond.duration.toFixed(2)} years`} />
-                  <FactRow label="Modified Duration" value={bond.modifiedDuration.toFixed(2)} />
-                  <FactRow label="Spread to Benchmark" value={`${bond.spreadToBenchmark} bps`} />
-                  <FactRow label="Z-Spread" value={`${bond.zSpread} bps`} />
                 </div>
               </div>
 
@@ -80,16 +74,18 @@ export function BondFacts({ bond, defaultOpen = false }: BondFactsProps) {
               <div>
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Issuer Snapshot</h4>
                 <div>
-                  <FactRow 
-                    label="Issuer" 
-                    value={bond.issuer} 
-                    isLink 
-                    to={`/issuers/${encodeURIComponent(bond.issuer)}`} 
+                  <FactRow
+                    label="Issuer"
+                    value={bond.issuer}
+                    isLink
+                    to={`/issuers/${encodeURIComponent(bond.issuer)}`}
                   />
                   <FactRow label="Country" value={bond.country} />
                   <FactRow label="Sector" value={bond.sector} />
                   <FactRow label="Issuer Type" value={bond.issuerType} />
-                  <FactRow label="Credit Rating" value={`${bond.creditRating} (${bond.ratingAgency})`} />
+                  {bond.moodysRating && <FactRow label="Credit Rating Moodys" value={bond.moodysRating} />}
+                  {bond.spRating && <FactRow label="Credit Rating S&P" value={bond.spRating} />}
+                  {bond.fitchRating && <FactRow label="Credit Rating Fitch" value={bond.fitchRating} />}
                 </div>
               </div>
             </div>

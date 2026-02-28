@@ -5,7 +5,7 @@ import { mockBonds } from '@/data/mockBonds';
 import { FrameworkHeader } from '@/components/framework/FrameworkHeader';
 import { FrameworkOverview } from '@/components/framework/FrameworkOverview';
 import { SPOSummary } from '@/components/framework/SPOSummary';
-import { FrameworkUoPSection } from '@/components/framework/FrameworkUoPSection';
+import { FrameworkAllocation } from '@/components/framework/FrameworkAllocation';
 import { EligibilityMatrix } from '@/components/framework/EligibilityMatrix';
 import { FrameworkBondsList } from '@/components/framework/FrameworkBondsList';
 import { FrameworkDocuments } from '@/components/framework/FrameworkDocuments';
@@ -33,16 +33,16 @@ export default function FrameworkDetailPage() {
           {/* 2. SPO Summary */}
           <SPOSummary framework={framework} />
 
-          {/* 3. Use of Proceeds & Allocation */}
-          <section>
-            <h2 className="text-lg font-semibold text-foreground mb-4">Use of Proceeds & Allocation</h2>
-            <FrameworkUoPSection framework={framework} />
-          </section>
-
-          {/* 4. Eligibility Criteria Matrix */}
+          {/* 3. Eligibility Criteria Matrix */}
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-4">Eligibility Criteria</h2>
             <EligibilityMatrix criteria={framework.eligibilityCriteria} />
+          </section>
+
+          {/* 4. Allocation across all bonds */}
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Allocation across all bonds</h2>
+            <FrameworkAllocation framework={framework} bonds={linkedBonds} />
           </section>
 
           {/* 5. Bonds Using This Framework */}

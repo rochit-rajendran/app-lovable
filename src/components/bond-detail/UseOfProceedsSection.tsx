@@ -6,6 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronDown, ChevronRight, MapPin, Beaker, Info } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { UoPAllocationTable } from '@/components/bond-detail/UoPAllocationTable';
 
 interface UseOfProceedsSectionProps {
   categories: UseOfProceedsCategory[];
@@ -32,7 +33,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function CategorySection({ category, currency }: { category: UseOfProceedsCategory; currency: string }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <Card className="border-border/60">
@@ -59,64 +60,6 @@ function CategorySection({ category, currency }: { category: UseOfProceedsCatego
 
         <CollapsibleContent>
           <div className="px-6 pb-5 space-y-5 border-t border-border/40 pt-4">
-            {/* Projects */}
-            {category.projects.length > 0 && (
-              <div>
-                <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Projects</h5>
-                <div className="space-y-3">
-                  {category.projects.map((project) => (
-                    <div key={project.id} className="rounded-lg border border-border/50 p-3.5 bg-muted/20">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-foreground">{project.name}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                              <MapPin className="h-3 w-3" />
-                              {project.location}
-                            </span>
-                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                              <Beaker className="h-3 w-3" />
-                              {project.type}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 flex-shrink-0">
-                          {project.allocationAmount && (
-                            <span className="text-xs font-medium tabular-nums text-foreground">{formatAmount(project.allocationAmount, currency)}</span>
-                          )}
-                          <StatusBadge status={project.status} />
-                        </div>
-                      </div>
-
-                      {/* Project-level KPIs */}
-                      {project.impactKPIs.length > 0 && (
-                        <div className="flex flex-wrap gap-x-5 gap-y-1.5 mt-3 pt-2.5 border-t border-border/30">
-                          {project.impactKPIs.map((kpi, idx) => (
-                            <div key={idx} className="flex items-center gap-1.5">
-                              <span className="text-[11px] text-muted-foreground">{kpi.name}:</span>
-                              <span className="text-xs font-semibold tabular-nums text-foreground">
-                                {typeof kpi.value === 'number' ? kpi.value.toLocaleString() : kpi.value} {kpi.unit}
-                              </span>
-                              {kpi.methodology && (
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <Info className="h-3 w-3 text-muted-foreground/50" />
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-xs text-xs">
-                                    {kpi.methodology}
-                                  </TooltipContent>
-                                </Tooltip>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Category-level Impact KPIs */}
             {category.impactKPIs.length > 0 && (
               <div>
@@ -167,8 +110,14 @@ function CategorySection({ category, currency }: { category: UseOfProceedsCatego
 
 export function UseOfProceedsSection({ categories, currency }: UseOfProceedsSectionProps) {
   return (
-    <div>
-      <h2 className="text-lg font-semibold text-foreground mb-4">Use of Proceeds · Projects · Impact</h2>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Use of Proceeds · Projects · Impact</h2>
+        <div className="bg-card rounded-lg border border-border p-5">
+          <UoPAllocationTable categories={categories} currency={currency} />
+        </div>
+      </div>
+
       <div className="space-y-3">
         {categories.map((category) => (
           <CategorySection key={category.category} category={category} currency={currency} />

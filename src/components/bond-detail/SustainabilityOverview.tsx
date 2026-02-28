@@ -35,7 +35,7 @@ function formatAmount(value: number, currency: string): string {
 
 function SDGIcon({ number }: { number: number }) {
   return (
-    <div 
+    <div
       className="w-7 h-7 rounded flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
       style={{ backgroundColor: SDG_COLORS[number] || '#999' }}
     >
@@ -69,6 +69,47 @@ export function SustainabilityOverview({ esgDetail, currency }: SustainabilityOv
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Use of Proceeds */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-semibold">Use of Proceeds Allocation</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-44">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={uopData} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
+                <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip
+                  formatter={(value: number, name: string, props: any) => [
+                    `${value}% · ${formatAmount(props.payload.amount, currency)}`,
+                    'Allocation'
+                  ]}
+                  contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={24}>
+                  {uopData.map((_, index) => (
+                    <Cell
+                      key={index}
+                      fill={index === uopData.length - 1 && esgDetail.unallocatedPercentage
+                        ? 'hsl(var(--muted-foreground))'
+                        : UOP_COLORS[index % UOP_COLORS.length]
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          {esgDetail.unallocatedPercentage !== undefined && esgDetail.unallocatedPercentage > 0 && (
+            <p className="text-[11px] text-muted-foreground mt-2">
+              {esgDetail.unallocatedPercentage}% of proceeds remain unallocated
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* SDG Allocation */}
       <Card>
         <CardHeader className="pb-2">
@@ -92,7 +133,7 @@ export function SustainabilityOverview({ esgDetail, currency }: SustainabilityOv
                       <Cell key={entry.sdgNumber} fill={SDG_COLORS[entry.sdgNumber] || '#999'} />
                     ))}
                   </Pie>
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value: number) => [`${value}%`, 'Allocation']}
                     contentStyle={{ fontSize: 12, borderRadius: 8 }}
                   />
@@ -117,47 +158,6 @@ export function SustainabilityOverview({ esgDetail, currency }: SustainabilityOv
             <Info className="h-3 w-3" />
             Based on issuer-reported allocation
           </p>
-        </CardContent>
-      </Card>
-
-      {/* Use of Proceeds */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-semibold">Use of Proceeds Allocation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-44">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={uopData} layout="vertical" margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" />
-                <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip 
-                  formatter={(value: number, name: string, props: any) => [
-                    `${value}% · ${formatAmount(props.payload.amount, currency)}`,
-                    'Allocation'
-                  ]}
-                  contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={24}>
-                  {uopData.map((_, index) => (
-                    <Cell 
-                      key={index} 
-                      fill={index === uopData.length - 1 && esgDetail.unallocatedPercentage 
-                        ? 'hsl(var(--muted-foreground))' 
-                        : UOP_COLORS[index % UOP_COLORS.length]
-                      } 
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          {esgDetail.unallocatedPercentage !== undefined && esgDetail.unallocatedPercentage > 0 && (
-            <p className="text-[11px] text-muted-foreground mt-2">
-              {esgDetail.unallocatedPercentage}% of proceeds remain unallocated
-            </p>
-          )}
         </CardContent>
       </Card>
     </div>

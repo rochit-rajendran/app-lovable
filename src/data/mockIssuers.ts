@@ -3,13 +3,13 @@ import { Issuer } from '@/types/issuer';
 export const mockIssuers: Record<string, Issuer> = {
   'European Investment Bank': {
     id: 'iss-eib',
-    name: 'European Investment Bank',
-    country: 'Luxembourg',
-    sector: 'Development Finance',
-    subSector: 'Multilateral Development Bank',
+    name: 'European Investment Bank',// issuer - issuer
+    country: 'Luxembourg', // issuer - country
+    sector: 'Development Finance', // issuer - sector
+    subSector: 'Multilateral Development Bank', // issuer - subSector
     issuerType: 'Supranational',
-    sustainableBondCount: 4,
-    totalSustainableIssuance: 18000000000,
+    sustainableBondCount: 4, //?
+    totalSustainableIssuance: 18000000000, // ?
     currency: 'EUR',
     description: 'The EU\'s lending arm and the world\'s largest multilateral borrower and lender. Pioneer of the green bond market since 2007.',
     frameworks: [

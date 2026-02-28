@@ -1,11 +1,11 @@
 import { Framework } from '@/types/framework';
 
 export const mockFrameworks: Record<string, Framework> = {
-  'fw-eib-cab': {
+  'fw-eib-cab': {//F001 - framework
     id: 'fw-eib-cab',
-    name: 'EIB Climate Awareness Bond Framework',
-    issuer: 'European Investment Bank',
-    year: 2023,
+    name: 'EIB Climate Awareness Bond Framework', // framework name - from framework
+    issuer: 'European Investment Bank', //issuer - from framework
+    year: 2023, // year - framework
     type: 'Green',
     status: 'Active',
     currency: 'EUR',

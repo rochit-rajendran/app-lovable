@@ -50,8 +50,8 @@ export function BondDetailHeader({ bond, esgDetail, linkedFramework, onAddToPort
             <div className="flex items-center gap-3 mt-1.5">
               <span className="text-sm font-mono text-muted-foreground">{bond.isin}</span>
               <span className="text-muted-foreground/40">·</span>
-              <Link 
-                to={`/issuers/${issuerSlug}`} 
+              <Link
+                to={`/issuers/${issuerSlug}`}
                 className="text-sm text-primary hover:underline underline-offset-2"
               >
                 {bond.issuer}
@@ -59,8 +59,8 @@ export function BondDetailHeader({ bond, esgDetail, linkedFramework, onAddToPort
               {linkedFramework && (
                 <>
                   <span className="text-muted-foreground/40">·</span>
-                  <Link 
-                    to={`/frameworks/${linkedFramework.id}`} 
+                  <Link
+                    to={`/frameworks/${linkedFramework.id}`}
                     className="text-sm text-primary hover:underline underline-offset-2 inline-flex items-center gap-1"
                   >
                     <Layers className="h-3 w-3" />
@@ -116,6 +116,14 @@ export function BondDetailHeader({ bond, esgDetail, linkedFramework, onAddToPort
           <span>Maturity {new Date(bond.maturityDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
           <span className="text-muted-foreground/30">·</span>
           <span>{formatLargeNumber(bond.outstandingAmount, bond.currency)} outstanding</span>
+
+          {/* Added Last Updated */}
+          {esgDetail?.dataProvenance?.lastUpdate && (
+            <>
+              <span className="text-muted-foreground/30">·</span>
+              <span>Last Updated {new Date(esgDetail.dataProvenance.lastUpdate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            </>
+          )}
         </div>
       </div>
     </div>

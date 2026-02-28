@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bond } from '@/types/bond';
-import { X, ExternalLink, TrendingUp, Calendar, Building2, Globe, Banknote, Shield, Leaf, Bookmark, Briefcase } from 'lucide-react';
+import { X, ExternalLink, TrendingUp, Calendar, Building2, Globe, Banknote, Shield, Briefcase, Bookmark, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ESGBadge, SustainabilityTags } from './ESGBadge';
 import { Separator } from '@/components/ui/separator';
 import { AddToCollectionDialog } from '@/components/portfolio/AddToCollectionDialog';
+import { cn } from '@/lib/utils';
+
+// New imports for Impact Data visualization
+import { mockEsgDetails } from '@/data/mockEsgData';
+import { UoPAllocationTable } from '@/components/bond-detail/UoPAllocationTable';
 
 interface BondDetailPanelProps {
   bond: Bond;
@@ -34,10 +38,23 @@ function InfoRow({ icon: Icon, label, value }: { icon: any; label: string; value
   );
 }
 
+function getLabelColor(label: string) {
+  switch (label) {
+    case 'Green': return 'border-emerald-500 text-emerald-700 bg-emerald-50';
+    case 'Social': return 'border-blue-500 text-blue-700 bg-blue-50';
+    case 'Sustainability': return 'border-orange-500 text-orange-700 bg-orange-50';
+    case 'Sustainability-Linked': return 'border-purple-500 text-purple-700 bg-purple-50';
+    default: return 'border-gray-500 text-gray-700 bg-gray-50';
+  }
+}
+
 export function BondDetailPanel({ bond, onClose }: BondDetailPanelProps) {
   const navigate = useNavigate();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addDialogTab, setAddDialogTab] = useState<'watchlist' | 'portfolio'>('watchlist');
+
+  // Fetch ESG Data corresponding to this bond
+  const esgData = mockEsgDetails[bond.id];
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -62,8 +79,16 @@ export function BondDetailPanel({ bond, onClose }: BondDetailPanelProps) {
   return (
     <>
       <div className="w-96 border-l border-border bg-card flex flex-col h-full animate-slide-in-right">
-        {/* Header */}
+        {/* Header (Labels up top) */}
         <div className="p-4 border-b border-border">
+          <div className="mb-3">
+            <span className={cn(
+              'inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-medium border',
+              getLabelColor(bond.label || '')
+            )}>
+              {bond.label || 'Conventional'}
+            </span>
+          </div>
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-foreground truncate">{bond.name}</h2>
@@ -74,42 +99,73 @@ export function BondDetailPanel({ bond, onClose }: BondDetailPanelProps) {
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <div className="mt-3">
-            <SustainabilityTags 
-              isGreen={bond.isGreen}
-              isSustainability={bond.isSustainability}
-              isClimateAligned={bond.isClimateAligned}
-            />
-          </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-4 space-y-6">
+
           {/* Key Metrics */}
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Key Metrics</h3>
             <div className="grid grid-cols-2 gap-4">
-              <StatItem label="Coupon Rate" value={`${bond.couponRate.toFixed(3)}%`} />
-              <StatItem label="Yield to Maturity" value={`${bond.yieldToMaturity.toFixed(2)}%`} />
-              <StatItem label="Current Price" value={bond.currentPrice.toFixed(2)} subValue={`of ${bond.faceValue} par`} />
-              <StatItem label="Current Yield" value={`${bond.yield.toFixed(2)}%`} />
+              <StatItem label="Coupon" value={`${bond.couponRate.toFixed(3)}%`} />
+              <StatItem label="Currency" value={bond.currency} />
+              <StatItem label="Maturity date" value={formatDate(bond.maturityDate)} />
+              <StatItem label="Tenor" value={`${bond.tenor.toFixed(1)} yrs`} />
             </div>
           </div>
 
           <Separator />
 
-          {/* Risk Metrics */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Risk Metrics</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <StatItem label="Duration" value={`${bond.duration.toFixed(2)} yrs`} />
-              <StatItem label="Modified Duration" value={`${bond.modifiedDuration.toFixed(2)}`} />
-              <StatItem label="Spread to Benchmark" value={`${bond.spreadToBenchmark} bps`} />
-              <StatItem label="Z-Spread" value={`${bond.zSpread} bps`} />
-            </div>
-          </div>
+          {/* Use of Proceeds */}
+          {esgData?.useOfProceeds && esgData.useOfProceeds.length > 0 && (
+            <>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3">Use of Proceeds</h3>
+                <div className="flex flex-wrap gap-2">
+                  {esgData.useOfProceeds.map((use) => (
+                    <span
+                      key={use.category}
+                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border"
+                    >
+                      {use.category}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
 
-          <Separator />
+          {/* SDGs */}
+          {esgData?.sdgAllocations && esgData.sdgAllocations.length > 0 && (
+            <>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3">SDGs</h3>
+                <div className="flex flex-wrap gap-2">
+                  {esgData.sdgAllocations.map((sdg) => (
+                    <span
+                      key={sdg.sdgNumber}
+                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
+                    >
+                      SDG {sdg.sdgNumber} - {sdg.sdgName}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
+
+          {/* Risks Metrics Allocation */}
+          {esgData?.useOfProceeds && esgData.useOfProceeds.length > 0 && (
+            <>
+              <div className="pt-2">
+                <UoPAllocationTable categories={esgData.useOfProceeds} currency={bond.currency} />
+              </div>
+              <Separator />
+            </>
+          )}
 
           {/* Bond Details */}
           <div>
@@ -119,76 +175,16 @@ export function BondDetailPanel({ bond, onClose }: BondDetailPanelProps) {
               <InfoRow icon={Globe} label="Country" value={bond.country} />
               <InfoRow icon={Banknote} label="Currency" value={bond.currency} />
               <InfoRow icon={TrendingUp} label="Sector" value={bond.sector} />
+              <InfoRow icon={TrendingUp} label="Subsector" value={bond.subsector} />
               <InfoRow icon={Calendar} label="Issue Date" value={formatDate(bond.issueDate)} />
               <InfoRow icon={Calendar} label="Maturity Date" value={formatDate(bond.maturityDate)} />
-              <InfoRow icon={Shield} label="Credit Rating" value={`${bond.creditRating} (${bond.ratingAgency})`} />
-              <InfoRow icon={Banknote} label="Outstanding" value={formatLargeNumber(bond.outstandingAmount, bond.currency)} />
+              <InfoRow icon={Shield} label="Moody's" value={bond.moodysRating || 'N/A'} />
+              <InfoRow icon={Shield} label="S&P" value={bond.spRating || 'N/A'} />
+              <InfoRow icon={Shield} label="Fitch" value={bond.fitchRating || 'N/A'} />
+              <InfoRow icon={Banknote} label="Bond size" value={formatLargeNumber(bond.outstandingAmount, bond.currency)} />
             </div>
           </div>
 
-          {/* ESG Scores */}
-          {bond.esgScore && (
-            <>
-              <Separator />
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">ESG Scores</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-accent/5 border border-accent/10">
-                    <div className="flex items-center gap-2">
-                      <Leaf className="h-5 w-5 text-accent" />
-                      <span className="font-medium">Overall ESG</span>
-                    </div>
-                    <span className="text-2xl font-bold text-accent tabular-nums">{bond.esgScore}</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {bond.environmentalScore && (
-                      <div className="text-center p-3 rounded-lg bg-muted/50">
-                        <ESGBadge type="environmental" />
-                        <p className="text-xl font-bold mt-2 tabular-nums">{bond.environmentalScore}</p>
-                      </div>
-                    )}
-                    {bond.socialScore && (
-                      <div className="text-center p-3 rounded-lg bg-muted/50">
-                        <ESGBadge type="social" />
-                        <p className="text-xl font-bold mt-2 tabular-nums">{bond.socialScore}</p>
-                      </div>
-                    )}
-                    {bond.governanceScore && (
-                      <div className="text-center p-3 rounded-lg bg-muted/50">
-                        <ESGBadge type="governance" />
-                        <p className="text-xl font-bold mt-2 tabular-nums">{bond.governanceScore}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Use of Proceeds */}
-          {bond.useOfProceeds && bond.useOfProceeds.length > 0 && (
-            <>
-              <Separator />
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">Use of Proceeds</h3>
-                <div className="flex flex-wrap gap-2">
-                  {bond.useOfProceeds.map((use) => (
-                    <span 
-                      key={use}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground"
-                    >
-                      {use}
-                    </span>
-                  ))}
-                </div>
-                {bond.greenBondFramework && (
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Framework: {bond.greenBondFramework}
-                  </p>
-                )}
-              </div>
-            </>
-          )}
         </div>
 
         {/* Footer Actions */}

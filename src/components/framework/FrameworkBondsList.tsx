@@ -11,11 +11,11 @@ interface FrameworkBondsListProps {
   bonds: Bond[];
 }
 
-function formatLargeNumber(value: number, currency: string): string {
-  if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T ${currency}`;
-  if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B ${currency}`;
-  if (value >= 1e6) return `${(value / 1e6).toFixed(0)}M ${currency}`;
-  return `${value.toLocaleString()} ${currency}`;
+function formatLargeNumber(value: number): string {
+  if (value >= 1e12) return `${(value / 1e12).toFixed(1)}T`;
+  if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+  if (value >= 1e6) return `${(value / 1e6).toFixed(0)}M`;
+  return value.toLocaleString();
 }
 
 export function FrameworkBondsList({ framework, bonds }: FrameworkBondsListProps) {
@@ -36,8 +36,8 @@ export function FrameworkBondsList({ framework, bonds }: FrameworkBondsListProps
               <TableHead className="min-w-[200px]">Bond Name</TableHead>
               <TableHead>ISIN</TableHead>
               <TableHead className="text-right">Issue Year</TableHead>
-              <TableHead className="text-right">Issue Size</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead className="text-right">Bond Size</TableHead>
+              <TableHead>Currency</TableHead>
               <TableHead>Labels</TableHead>
               <TableHead className="w-10"></TableHead>
             </TableRow>
@@ -58,9 +58,9 @@ export function FrameworkBondsList({ framework, bonds }: FrameworkBondsListProps
                   {new Date(bond.issueDate).getFullYear()}
                 </TableCell>
                 <TableCell className="text-sm text-right tabular-nums">
-                  {formatLargeNumber(bond.outstandingAmount, bond.currency)}
+                  {formatLargeNumber(bond.outstandingAmount)}
                 </TableCell>
-                <TableCell className="text-sm">{bond.issuerType}</TableCell>
+                <TableCell className="text-sm">{bond.currency}</TableCell>
                 <TableCell>
                   <SustainabilityTags
                     isGreen={bond.isGreen}

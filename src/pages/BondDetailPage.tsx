@@ -75,29 +75,29 @@ export default function BondDetailPage() {
                 {/* 4. Framework Alignment & Verification */}
                 <section>
                   <h2 className="text-lg font-semibold text-foreground mb-4">Framework Alignment & Verification</h2>
-                  <FrameworkAlignmentSection 
-                    frameworks={esgDetail.frameworks} 
+                  <FrameworkAlignmentSection
+                    frameworks={esgDetail.frameworks}
                     externalReviews={esgDetail.externalReviews}
                     issuerName={bond.issuer}
                   />
                 </section>
 
-                {/* 5. EU Taxonomy (if available) */}
+                {/* 5. EU Taxonomy (if available) - HIDDEN FOR NOW
                 {esgDetail.taxonomy && (
                   <section>
                     <TaxonomyAlignment taxonomy={esgDetail.taxonomy} />
                   </section>
-                )}
+                )} */}
 
                 {/* 6. Documents & Sources */}
                 <section>
                   <DocumentsSection documents={esgDetail.documents} />
                 </section>
 
-                {/* 7. Data Coverage & Provenance */}
+                {/* 7. Data Coverage & Provenance - REMOVED
                 <section>
                   <DataProvenance provenance={esgDetail.dataProvenance} />
-                </section>
+                </section> */}
               </>
             ) : (
               <>
@@ -107,7 +107,7 @@ export default function BondDetailPage() {
                   <div>
                     <p className="text-sm font-medium text-foreground">No sustainability data available</p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      This bond does not have ESG, use of proceeds, or framework alignment data. 
+                      This bond does not have ESG, use of proceeds, or framework alignment data.
                       Financial details are shown below.
                     </p>
                   </div>
